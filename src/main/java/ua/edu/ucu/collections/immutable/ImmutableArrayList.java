@@ -8,22 +8,6 @@ public class ImmutableArrayList implements ImmutableList {
 
     private int size = 0;
 
-    private static Object[] twoArrayPartsCopy(int newSize, Object[] from,
-                                              int firstIndex, int secondIndex,
-                                              int firstBegIndex, int lastBegIndex,
-                                              int firstSize, int secondSize)
-    {
-        Object[] newArray = new Object[newSize];
-        System.arraycopy(from, firstBegIndex, newArray, firstIndex, firstSize);
-
-        System.arraycopy(from, lastBegIndex, newArray, secondIndex, secondSize);
-        return newArray;
-    }
-
-    private static void indexErrorChecker(int index, int size)
-    {
-        if (index >= size || index < 0) throw new IndexOutOfBoundsException();
-    }
 
     public ImmutableArrayList()
     {
@@ -36,6 +20,29 @@ public class ImmutableArrayList implements ImmutableList {
         size = length;
     }
 
+    private static Object[] twoArrayPartsCopy(int newSize,
+                                              Object[] from,
+                                              int secondIndex,
+                                              int lastBegIndex,
+                                              int firstSize,
+                                              int secondSize)
+    {
+        int firstBegIndex = 0;
+        int firstIndex = 0;
+        Object[] newArray = new Object[newSize];
+        System.arraycopy(from, firstBegIndex, newArray, firstIndex, firstSize);
+
+        System.arraycopy(from, lastBegIndex, newArray, secondIndex, secondSize);
+        return newArray;
+    }
+
+    private static void indexErrorChecker(int index, int size)
+    {
+        if (index >= size || index < 0)
+        {
+            throw new IndexOutOfBoundsException();
+        }
+    }
 
 
     @Override
@@ -48,8 +55,8 @@ public class ImmutableArrayList implements ImmutableList {
 
         indexErrorChecker(index, size + 1);
 
-        Object[] newData = twoArrayPartsCopy(size + 1, data, 0,
-                index + 1, 0, index, index, size - index);
+        Object[] newData = twoArrayPartsCopy(size + 1, data,
+                index + 1, index, index, size - index);
         newData[index] = e;
         return new ImmutableArrayList(newData, size + 1);
     }
@@ -66,8 +73,8 @@ public class ImmutableArrayList implements ImmutableList {
 
         int cLength = c.length;
 
-        Object[] newData = twoArrayPartsCopy(size + cLength, data, 0,
-                index + cLength, 0, index, index, size - index);
+        Object[] newData = twoArrayPartsCopy(size + cLength, data,
+                index + cLength, index, index, size - index);
 
         System.arraycopy(c, 0, newData, index, cLength);
         return new ImmutableArrayList(newData, size + cLength);
@@ -86,8 +93,8 @@ public class ImmutableArrayList implements ImmutableList {
 
         indexErrorChecker(index, size);
 
-        Object[] newData = twoArrayPartsCopy(size - 1, data, 0,
-                index, 0, index + 1, index, size - index - 1);
+        Object[] newData = twoArrayPartsCopy(size - 1, data,
+                index, index + 1, index, size - index - 1);
         return new ImmutableArrayList(newData, size - 1);
     }
 
@@ -104,7 +111,10 @@ public class ImmutableArrayList implements ImmutableList {
     @Override
     public int indexOf(Object e) {
         for (int i = 0; i < size; i++) {
-            if (data[i] == e) return i;
+            if (data[i] == e)
+            {
+                return i;
+            }
         }
         return -1;
     }
