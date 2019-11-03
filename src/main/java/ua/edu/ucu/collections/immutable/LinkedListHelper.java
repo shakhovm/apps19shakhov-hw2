@@ -2,8 +2,8 @@ package ua.edu.ucu.collections.immutable;
 
 final class LinkedListHelper {
 
-    public LinkedListHelper()
-    {}
+    public LinkedListHelper() {
+    }
 
     public static void indexErrorChecker(int index, int size)
     {

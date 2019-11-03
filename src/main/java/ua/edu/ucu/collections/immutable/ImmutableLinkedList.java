@@ -12,11 +12,11 @@ public class ImmutableLinkedList implements ImmutableList {
     private int size = 0;
 
     public ImmutableLinkedList(Object[] data) {
-        int size = data.length;
-        Node[] nodes = createArrayNodes(data, size);
+        int length = data.length;
+        Node[] nodes = createArrayNodes(data, length);
         head = nodes[0];
         tail = nodes[1];
-        this.size = size;
+        size = length;
     }
 
     public ImmutableLinkedList(Node head, Node tail, int size)
@@ -103,13 +103,16 @@ public class ImmutableLinkedList implements ImmutableList {
         Node[] arrayNodes = createArrayNodes(c, newSize);
         if (isEmpty())
         {
-            return new ImmutableLinkedList(arrayNodes[0], arrayNodes[1], newSize);
+            return new ImmutableLinkedList(
+                    arrayNodes[0],
+                    arrayNodes[1],
+                    newSize);
         }
 
         Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
         Node currentNode = nodes[2];
 
-        if(currentNode.getPrev() != null)
+        if (currentNode.getPrev() != null)
         {
             currentNode.getPrev().setNext(arrayNodes[0]);
             currentNode.getPrev().getNext().setPrev(currentNode.getPrev());

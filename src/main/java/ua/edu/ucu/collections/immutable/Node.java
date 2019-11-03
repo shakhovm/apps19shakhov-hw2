@@ -15,7 +15,8 @@ final class Node {
         this.prev = prev;
     }
 
-    public Node() {}
+    public Node() {
+    }
 
     public Object getData() {
         return data;
