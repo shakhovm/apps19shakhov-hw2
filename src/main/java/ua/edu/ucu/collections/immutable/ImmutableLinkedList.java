@@ -100,7 +100,14 @@ public class ImmutableLinkedList implements ImmutableList {
         LinkedListHelper.indexErrorChecker(index, size);
 
         int newSize = c.length;
+        if (newSize == 0)
+        {
+            Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
+            return new ImmutableLinkedList(nodes[0], nodes[1], size);
+        }
+
         Node[] arrayNodes = createArrayNodes(c, newSize);
+
         if (isEmpty())
         {
             return new ImmutableLinkedList(
@@ -201,11 +208,19 @@ public class ImmutableLinkedList implements ImmutableList {
 
     public Object getFirst()
     {
+        if (isEmpty())
+        {
+            throw new IndexOutOfBoundsException();
+        }
         return head.getData();
     }
 
     public Object getLast()
     {
+        if (isEmpty())
+        {
+            throw new IndexOutOfBoundsException();
+        }
         return tail.getPrev().getData();
     }
 
