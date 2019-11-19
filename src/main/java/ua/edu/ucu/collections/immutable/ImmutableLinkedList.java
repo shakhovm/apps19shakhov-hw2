@@ -3,7 +3,7 @@ package ua.edu.ucu.collections.immutable;
 import java.util.Arrays;
 
 
-final public class ImmutableLinkedList implements ImmutableList {
+public final class ImmutableLinkedList implements ImmutableList {
 
     private Node head;
 
@@ -97,12 +97,11 @@ final public class ImmutableLinkedList implements ImmutableList {
         Node[] arrayNodes = createArrayNodes(c, newSize);
         if (isEmpty())
         {
-            return arrayNodes != null ?
-                    new ImmutableLinkedList(
-                        arrayNodes[0],
-                        arrayNodes[1],
-                        newSize) :
-                    new ImmutableLinkedList();
+            return arrayNodes != null
+                    ? new ImmutableLinkedList(
+                            arrayNodes[0], arrayNodes[1],
+                    newSize)
+                    : new ImmutableLinkedList();
         }
         Node newHeadNode = new Node();
         Node newNode = newHeadNode;
