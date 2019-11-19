@@ -3,7 +3,7 @@ package ua.edu.ucu.collections.immutable;
 import java.util.Arrays;
 
 
-public class ImmutableLinkedList implements ImmutableList {
+final public class ImmutableLinkedList implements ImmutableList {
 
     private Node head;
 
@@ -12,11 +12,17 @@ public class ImmutableLinkedList implements ImmutableList {
     private int size = 0;
 
     public ImmutableLinkedList(Object[] data) {
-        int length = data.length;
-        Node[] nodes = createArrayNodes(data, length);
-        head = nodes[0];
-        tail = nodes[1];
-        size = length;
+        size = data.length;
+        Node[] nodes = createArrayNodes(data, size);
+        if (nodes != null) {
+            head = nodes[0];
+            tail = nodes[1];
+        }
+        else {
+            head = new Node(null, null, null);
+            tail = new Node(null, null, head);
+            head.setNext(tail);
+        }
     }
 
     public ImmutableLinkedList(Node head, Node tail, int size)
@@ -33,22 +39,28 @@ public class ImmutableLinkedList implements ImmutableList {
         head.setNext(tail);
     }
 
-
-    @Override
-    public ImmutableList add(Object e) {
-        return add(size, e);
+    public static void indexErrorChecker(int index, int size)
+    {
+        if (index < 0 || index > size)
+        {
+            throw new IndexOutOfBoundsException();
+        }
     }
 
-    private ImmutableList addObjectToEmpty(Object e)
+    public static Node findNode(int index, Node node)
     {
-        Node newTail = new Node(null, null, null);
-        Node newHead = new Node(e, newTail, null);
-        newHead.getNext().setPrev(newHead);
-        return new ImmutableLinkedList(newHead, newHead.getNext(), 1);
+        Node newNode = node;
+        for (int i = 0; i < index; i++) {
+            newNode = newNode.getNext();
+        }
+        return newNode;
     }
 
     private static Node[] createArrayNodes(Object[] c, int newSize)
     {
+        if (newSize == 0) {
+            return null;
+        }
         Node newHead = new Node(c[0], null, null);
         Node newTail = new Node(null, null, newHead);
         newHead.setNext(newTail);
@@ -61,118 +73,126 @@ public class ImmutableLinkedList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList add(int index, Object e) {
+    public ImmutableLinkedList add(Object e) {
+        return add(size, e);
+    }
 
-        LinkedListHelper.indexErrorChecker(index, size);
 
-        if (isEmpty())
-        {
-            return addObjectToEmpty(e);
-        }
-        Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
+    @Override
+    public ImmutableLinkedList add(int index, Object e) {
 
-        Node currentNode = nodes[2];
-
-        Node newNode = new Node(e, currentNode, currentNode.getPrev());
-        currentNode.setPrev(newNode);
-
-        if (currentNode.getPrev().getPrev() != null)
-        {
-            currentNode.getPrev().getPrev().setNext(newNode);
-        }
-
-        else
-        {
-            nodes[0] = currentNode.getPrev();
-        }
-
-        return new ImmutableLinkedList(nodes[0], nodes[1], size + 1);
+        return addAll(index, new Object[]{e});
     }
 
     @Override
-    public ImmutableList addAll(Object[] c) {
+    public ImmutableLinkedList addAll(Object[] c) {
         return addAll(size, c);
     }
 
     @Override
-    public ImmutableList addAll(int index, Object[] c) {
+    public ImmutableLinkedList addAll(int index, Object[] c) {
 
-        LinkedListHelper.indexErrorChecker(index, size);
-
+        indexErrorChecker(index, size);
         int newSize = c.length;
-        if (newSize == 0)
-        {
-            Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
-            return new ImmutableLinkedList(nodes[0], nodes[1], size);
-        }
-
         Node[] arrayNodes = createArrayNodes(c, newSize);
-
         if (isEmpty())
         {
-            return new ImmutableLinkedList(
-                    arrayNodes[0],
-                    arrayNodes[1],
-                    newSize);
+            return arrayNodes != null ?
+                    new ImmutableLinkedList(
+                        arrayNodes[0],
+                        arrayNodes[1],
+                        newSize) :
+                    new ImmutableLinkedList();
+        }
+        Node newHeadNode = new Node();
+        Node newNode = newHeadNode;
+
+        Node newHead = head;
+        int sizeIter = index == size ? size + 1 : size;
+        for (int i = 0; i < sizeIter; i++) {
+            newNode.setData(newHead.getData());
+            newNode.setNext(new Node(null, null, newNode));
+            if (i == index && arrayNodes != null) {
+                if (newNode.getPrev() == null)
+                {
+                    newHeadNode = arrayNodes[0];
+                }
+                else {
+                    newNode.getPrev().setNext(arrayNodes[0]);
+                }
+
+                arrayNodes[0].setPrev(newNode.getPrev());
+                newNode.setPrev(arrayNodes[1].getPrev());
+                arrayNodes[1].getPrev().setNext(newNode);
+            }
+            newHead = newHead.getNext();
+            newNode = newNode.getNext();
         }
 
-        Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
-        Node currentNode = nodes[2];
-
-        if (currentNode.getPrev() != null)
-        {
-            currentNode.getPrev().setNext(arrayNodes[0]);
-            currentNode.getPrev().getNext().setPrev(currentNode.getPrev());
-        }
-
-        else
-        {
-            nodes[0] = arrayNodes[0];
-        }
-
-        currentNode.setPrev(arrayNodes[1].getPrev());
-        currentNode.getPrev().setNext(currentNode);
-
-        return new ImmutableLinkedList(nodes[0], nodes[1], size + newSize);
+        return new ImmutableLinkedList(newHeadNode, newNode, size + newSize);
     }
 
     @Override
     public Object get(int index) {
 
-        LinkedListHelper.indexErrorChecker(index, size - 1);
+        indexErrorChecker(index, size - 1);
 
-        return LinkedListHelper.findNode(index, head).getData();
+        return findNode(index, head).getData();
     }
 
     @Override
-    public ImmutableList remove(int index) {
-        LinkedListHelper.indexErrorChecker(index, size - 1);
-        Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
-        if (nodes[2].getPrev() != null)
-        {
-            nodes[2].getPrev().setNext(nodes[2].getNext());
-            nodes[2].getPrev().getNext().setPrev(nodes[2].getPrev());
-        }
-        else {
-            nodes[0] = nodes[2].getNext();
+    public ImmutableLinkedList remove(int index) {
+        indexErrorChecker(index, size - 1);
+
+        Node newHeadNode = new Node();
+        Node newNode = newHeadNode;
+
+        Node newHead = head;
+        for (int i = 0; i < size; i++) {
+            newNode.setData(newHead.getData());
+            newNode.setNext(new Node(null, null, newNode));
+
+            if (i == 0 && index == 0) {
+                newHeadNode = newHeadNode.getNext();
+                newHeadNode.setPrev(null);
+            }
+            else if (i == index) {
+                newNode.getPrev().setNext(newNode.getNext());
+                newNode.getNext().setPrev(newNode.getPrev());
+            }
+            newHead = newHead.getNext();
+            newNode = newNode.getNext();
         }
 
-        return new ImmutableLinkedList(nodes[0], nodes[1], size - 1);
+        return new ImmutableLinkedList(newHeadNode, newNode, size - 1);
     }
 
     @Override
-    public ImmutableList set(int index, Object e) {
-        LinkedListHelper.indexErrorChecker(index, size - 1);
-        Node[] nodes = LinkedListHelper.copyNodes(index, size, head);
-        nodes[2].setData(e);
-        return new ImmutableLinkedList(nodes[0], nodes[1], size);
+    public ImmutableLinkedList set(int index, Object e) {
+        indexErrorChecker(index, size - 1);
+
+        Node newHeadNode = new Node();
+        Node newNode = newHeadNode;
+
+        Node newHead = head;
+        for (int i = 0; i < size; i++) {
+            newNode.setData(newHead.getData());
+            newNode.setNext(new Node(null, null, newNode));
+            if (i == index) {
+                newNode.setData(e);
+            }
+            newHead = newHead.getNext();
+            newNode = newNode.getNext();
+        }
+
+        return new ImmutableLinkedList(newHeadNode, newNode, size);
     }
 
     @Override
     public int indexOf(Object e) {
         Node newHead = head;
         for (int i = 0; i < size; i++) {
-            if (newHead.getData() == e)
+            if (newHead.getData().equals(e))
             {
                 return i;
             }
@@ -187,7 +207,7 @@ public class ImmutableLinkedList implements ImmutableList {
     }
 
     @Override
-    public ImmutableList clear() {
+    public ImmutableLinkedList clear() {
         return new ImmutableLinkedList();
     }
 
@@ -198,12 +218,12 @@ public class ImmutableLinkedList implements ImmutableList {
 
     public ImmutableLinkedList addFirst(Object e)
     {
-        return (ImmutableLinkedList) add(0, e);
+        return add(0, e);
     }
 
     public ImmutableLinkedList addLast(Object e)
     {
-        return (ImmutableLinkedList) add(e);
+        return add(e);
     }
 
     public Object getFirst()
@@ -226,12 +246,12 @@ public class ImmutableLinkedList implements ImmutableList {
 
     public ImmutableLinkedList removeFirst()
     {
-        return (ImmutableLinkedList) remove(0);
+        return remove(0);
     }
 
     public ImmutableLinkedList removeLast()
     {
-        return (ImmutableLinkedList) remove(size - 1);
+        return remove(size - 1);
     }
 
     @Override

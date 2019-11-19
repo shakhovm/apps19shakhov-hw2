@@ -31,12 +31,12 @@ public class ImmutableArrayListTest {
 
     @Test
     public void testAdd() {
-        arrayList = (ImmutableArrayList) mainArrayList.add(3);
+        arrayList = mainArrayList.add(3);
         assertArrayEquals(array, mainArrayList.toArray());
 
         assertEquals(arrayList.size(), 4);
 
-        arrayList = (ImmutableArrayList) mainArrayList.addAll(array);
+        arrayList = mainArrayList.addAll(array);
 
         Object[] newArray = {0, 1, 2, 0, 1, 2};
 
@@ -44,13 +44,13 @@ public class ImmutableArrayListTest {
 
         assertArrayEquals(mainArrayList.toArray(), array);
 
-        arrayList = (ImmutableArrayList) mainArrayList.add(2, 120);
+        arrayList = mainArrayList.add(2, 120);
 
         assertEquals(arrayList.get(2), 120);
 
         assertEquals(mainArrayList.get(2), 2);
 
-        arrayList = (ImmutableArrayList) mainArrayList.addAll(1, array);
+        arrayList = mainArrayList.addAll(1, array);
 
         newArray = new Object[]{0, 0, 1, 2, 1, 2};
 
@@ -59,12 +59,12 @@ public class ImmutableArrayListTest {
 
     @Test(expected=IndexOutOfBoundsException.class)
     public void testAddWithError(){
-        arrayList = (ImmutableArrayList) mainArrayList.add(4, 5);
+        arrayList = mainArrayList.add(4, 5);
     }
 
     @Test
     public void testRemove() {
-        arrayList = (ImmutableArrayList) mainArrayList.remove(1);
+        arrayList = mainArrayList.remove(1);
 
         assertEquals(arrayList.size(), 2);
 
@@ -75,25 +75,29 @@ public class ImmutableArrayListTest {
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testRemoveWithException() {
-        arrayList = (ImmutableArrayList) mainArrayList.remove(3);
+        arrayList = mainArrayList.remove(3);
     }
 
     @Test
     public void testGetSetIndex() {
-        arrayList = (ImmutableArrayList) mainArrayList.set(1, 150);
+        arrayList = mainArrayList.set(1, 150);
         assertEquals(arrayList.get(1), 150);
 
+        assertEquals(arrayList.indexOf(150), 1);
         assertEquals(arrayList.indexOf(151), -1);
+
+
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
     public void testGetSetIndexWithException() {
-        arrayList = (ImmutableArrayList) mainArrayList.set(3, 150);
+        arrayList = mainArrayList.set(3, 150);
     }
+
 
     @Test
     public void testEmptyClear() {
-        arrayList = (ImmutableArrayList) mainArrayList.clear();
+        arrayList = mainArrayList.clear();
         assertEquals(arrayList.size(), 0);
         assertTrue(arrayList.isEmpty());
         assertEquals(mainArrayList.size(), 3);
